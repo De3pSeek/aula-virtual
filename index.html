@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula Virtual — Panel del Profesor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#080d14;--surface:#0f1923;--surface2:#131f2d;
+      --border:#1e2d3d;--accent:#00d4ff;--green:#00e676;
+      --red:#ff4444;--yellow:#ffaa00;--text:#c9d8e8;--muted:#4a6278;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh}
+
+    /* HEADER */
+    header{
+      background:var(--surface);border-bottom:1px solid var(--border);
+      padding:14px 24px;display:flex;align-items:center;
+      justify-content:space-between;position:sticky;top:0;z-index:10;gap:12px;flex-wrap:wrap;
+    }
+    .logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:var(--accent)}
+    .logo small{color:var(--muted);font-weight:400;font-size:13px}
+    .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .sala-wrap{display:flex;align-items:center;gap:8px}
+    .sala-wrap label{font-size:13px;color:var(--muted);white-space:nowrap}
+    input{
+      background:var(--bg);border:1px solid var(--border);color:var(--text);
+      padding:7px 12px;border-radius:8px;font-size:13px;
+      font-family:'JetBrains Mono',monospace;outline:none;width:130px;transition:border-color .2s;
+    }
+    input:focus{border-color:var(--accent)}
+    .btn{
+      padding:8px 16px;background:var(--accent);color:#000;border:none;
+      border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
+      font-family:'Space Grotesk',sans-serif;white-space:nowrap;transition:opacity .2s;
+    }
+    .btn:hover{opacity:.85}
+    .stats{display:flex;gap:6px}
+    .stat{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:12px;white-space:nowrap}
+    .stat .n{font-weight:700;font-size:14px;margin-right:4px}
+    .stat.t .n{color:var(--accent)}.stat.g .n{color:var(--green)}.stat.r .n{color:var(--red)}
+
+    /* MAIN */
+    main{padding:20px 24px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+
+    /* CARD */
+    .card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;overflow:hidden;transition:border-color .3s;
+    }
+    .card.alerta{border-color:rgba(255,68,68,.35);background:rgba(255,68,68,.03)}
+    .card.inactivo{opacity:.6}
+    .card-top{
+      padding:14px 16px 10px;display:flex;align-items:center;
+      justify-content:space-between;border-bottom:1px solid var(--border);
+    }
+    .card-top::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--green);border-radius:12px 12px 0 0;
+    }
+    .card{position:relative}
+    .card.alerta .card-top::before, .card.alerta::before{background:var(--red)!important}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);border-radius:12px 12px 0 0;transition:background .3s}
+    .card.alerta::before{background:var(--red)}
+    .card.inactivo::before{background:var(--muted)}
+    .nombre{font-size:15px;font-weight:600;color:#fff}
+    .badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:.5px}
+    .badge.activo{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.25)}
+    .badge.alerta{background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3)}
+    .badge.inactivo{background:rgba(74,98,120,.2);color:var(--muted);border:1px solid var(--border)}
+
+    /* PESTAÑA ACTIVA */
+    .activa-wrap{padding:10px 16px 8px;border-bottom:1px solid var(--border)}
+    .activa-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+    .activa-dom{
+      font-family:'JetBrains Mono',monospace;font-size:13px;
+      color:var(--text);background:var(--bg);
+      padding:6px 10px;border-radius:7px;border:1px solid var(--border);
+    }
+    .activa-dom.mala{color:var(--red);border-color:rgba(255,68,68,.3)}
+
+    /* LISTA PESTAÑAS */
+    .tabs-wrap{padding:8px 16px 14px}
+    .tabs-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+    .tab-list{display:flex;flex-direction:column;gap:4px;max-height:130px;overflow-y:auto}
+    .tab-list::-webkit-scrollbar{width:4px}
+    .tab-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+    .tab-item{
+      display:flex;align-items:center;gap:7px;
+      font-family:'JetBrains Mono',monospace;font-size:11px;
+      color:var(--muted);padding:4px 8px;border-radius:6px;
+      background:var(--bg);border:1px solid var(--border);
+    }
+    .tab-item.actual{color:var(--accent);border-color:rgba(0,212,255,.2)}
+    .tab-item.mala{color:var(--red);border-color:rgba(255,68,68,.2)}
+    .tab-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+    .tab-dot.actual{background:var(--accent)}
+    .tab-dot.mala{background:var(--red)}
+    .tab-dom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .tiempo{padding:0 16px 12px;font-size:11px;color:var(--muted)}
+
+    /* ESTADOS VACÍOS */
+    .sin-sala,.empty{text-align:center;padding:90px 20px;color:var(--muted)}
+    .sin-sala h2,.empty h2{font-size:20px;color:var(--text);margin-bottom:10px}
+    .sin-sala p,.empty p{font-size:14px;max-width:360px;margin:0 auto;line-height:1.6}
+    .sin-sala{display:block}.empty{display:none}
+
+    /* PULSO */
+    .pulso{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pu 1.8s infinite}
+    @keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🏫 Aula Virtual <small>— Panel del Profesor</small></div>
+  <div class="header-right">
+    <div class="sala-wrap">
+      <label>Sala:</label>
+      <input id="input-sala" placeholder="Ej: 4D-2024"/>
+      <button class="btn" id="btn-mon">Monitorear</button>
+    </div>
+    <div class="stats" id="stats" style="display:none">
+      <div class="stat t"><span class="n" id="cnt-t">0</span>alumnos</div>
+      <div class="stat g"><span class="n" id="cnt-g">0</span>en clase</div>
+      <div class="stat r"><span class="n" id="cnt-r">0</span>alertas</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="sin-sala" id="sin-sala">
+    <h2>👋 Bienvenido, profesor</h2>
+    <p>Escribe el código de sala y haz clic en <strong>Monitorear</strong> para ver la actividad de tus alumnos en tiempo real.</p>
+  </div>
+  <div class="empty" id="empty">
+    <h2>Esperando alumnos...</h2>
+    <p>Cuando los alumnos abran la extensión y entren el código <strong id="sala-lbl"></strong> aparecerán aquí.</p>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script>
+const FB = "https://salon-virtual-4-d-default-rtdb.firebaseio.com";
+const MALOS = ['youtube.com','instagram.com','tiktok.com','facebook.com','twitter.com','x.com','reddit.com','twitch.tv','netflix.com','spotify.com','discord.com','whatsapp.com','telegram.org','pinterest.com','snapchat.com'];
+
+let sala='', intervalo=null;
+
+function esMalo(url){
+  try{ const h=new URL(url).hostname.replace('www.',''); return MALOS.some(m=>h.includes(m)); }catch{return false}
+}
+function dominio(url){
+  try{ return new URL(url).hostname.replace('www.',''); }catch{return url}
+}
+function tiempo(ts){
+  const d=Math.floor((Date.now()-ts)/1000);
+  if(d<10)return'ahora mismo';
+  if(d<60)return`hace ${d}s`;
+  if(d<3600)return`hace ${Math.floor(d/60)}min`;
+  return`hace ${Math.floor(d/3600)}h`;
+}
+
+async function cargar(){
+  if(!sala)return;
+  try{
+    const r=await fetch(`${FB}/salas/${sala}/alumnos.json`);
+    const data=await r.json();
+    render(data);
+  }catch(e){console.log(e)}
+}
+
+function render(data){
+  const grid=document.getElementById('grid');
+  const empty=document.getElementById('empty');
+  const stats=document.getElementById('stats');
+
+  if(!data){
+    grid.innerHTML=''; empty.style.display='block'; stats.style.display='none'; return;
+  }
+  const alumnos=Object.values(data).filter(a=>a.nombre);
+  if(!alumnos.length){
+    grid.innerHTML=''; empty.style.display='block'; stats.style.display='none'; return;
+  }
+  empty.style.display='none'; stats.style.display='flex';
+
+  let ok=0, alertas=0;
+
+  // Orden: alertas primero, luego alfabético (posición fija)
+  alumnos.sort((a,b)=>{
+    const ma=a.activo&&(esMalo(a.dominioActivo)||((a.pestanas||[]).some(p=>esMalo(p.url))));
+    const mb=b.activo&&(esMalo(b.dominioActivo)||((b.pestanas||[]).some(p=>esMalo(p.url))));
+    if(ma!==mb)return mb-ma;
+    return(a.nombre||'').localeCompare(b.nombre||'','es');
+  });
+
+  const html=alumnos.map(a=>{
+    const pestanas=a.pestanas||[];
+    const malo=a.activo&&(esMalo(a.dominioActivo)||(pestanas.some(p=>esMalo(p.url))));
+    const inactivo=!a.activo;
+    if(malo)alertas++; else if(!inactivo)ok++;
+
+    const badge=malo
+      ?'<span class="badge alerta">⚠ ALERTA</span>'
+      :inactivo
+        ?'<span class="badge inactivo">Desconectado</span>'
+        :'<span class="badge activo"><span class="pulso"></span>Activo</span>';
+
+    const domActivo=a.dominioActivo||'—';
+    const clasActivo=esMalo('https://'+domActivo)?'activa-dom mala':'activa-dom';
+
+    const tabsHTML=pestanas.length
+      ? pestanas.map(p=>{
+          const d=p.dominio||dominio(p.url);
+          const esAct=p.activa;
+          const esMal=esMalo(p.url);
+          const cls=esMal?'tab-item mala':esAct?'tab-item actual':'tab-item';
+          const dotCls=esMal?'tab-dot mala':esAct?'tab-dot actual':'tab-dot';
+          return `<div class="${cls}"><span class="${dotCls}"></span><span class="tab-dom">${d||'—'}</span></div>`;
+        }).join('')
+      : '<div style="font-size:11px;color:var(--muted);padding:4px 0">Sin pestañas registradas</div>';
+
+    return `
+      <div class="card ${malo?'alerta':inactivo?'inactivo':''}">
+        <div class="card-top">
+          <span class="nombre">${a.nombre}</span>
+          ${badge}
+        </div>
+        <div class="activa-wrap">
+          <div class="activa-label">Pestaña activa</div>
+          <div class="${clasActivo}">${domActivo}</div>
+        </div>
+        <div class="tabs-wrap">
+          <div class="tabs-label">Todas las pestañas (${pestanas.length})</div>
+          <div class="tab-list">${tabsHTML}</div>
+        </div>
+        <div class="tiempo">Última actividad: ${tiempo(a.ultimaVez||0)}</div>
+      </div>`;
+  }).join('');
+
+  grid.innerHTML=html;
+  document.getElementById('cnt-t').textContent=alumnos.length;
+  document.getElementById('cnt-g').textContent=ok;
+  document.getElementById('cnt-r').textContent=alertas;
+}
+
+document.getElementById('btn-mon').addEventListener('click',()=>{
+  const val=document.getElementById('input-sala').value.trim().replace(/[.#$[\]/]/g,'_');
+  if(!val)return;
+  sala=val;
+  document.getElementById('sin-sala').style.display='none';
+  document.getElementById('sala-lbl').textContent=val;
+  if(intervalo)clearInterval(intervalo);
+  cargar();
+  intervalo=setInterval(cargar,3000);
+});
+
+document.getElementById('input-sala').addEventListener('keydown',e=>{
+  if(e.key==='Enter')document.getElementById('btn-mon').click();
+});
+</script>
+</body>
+</html>
